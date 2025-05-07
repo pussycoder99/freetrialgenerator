@@ -1,59 +1,12 @@
-import { useState } from 'react';
-import { Info } from 'lucide-react';
+import React, { useState } from 'react';
 
-export default function HostingSignup() {
+function HostingSignup() {
   const [domain, setDomain] = useState('');
   const [extension, setExtension] = useState('.com');
   const [location, setLocation] = useState('USA');
-  const [taxRate, setTaxRate] = useState(0.13);
-  const [availability, setAvailability] = useState(null);
-  const [checking, setChecking] = useState(false);
-  const [coupon, setCoupon] = useState('');
-  const [discount, setDiscount] = useState(0);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
-  const basePrice = 25.99;
-  const domainPrices = {
-    '.com': 9.99,
-    '.org': 11.99,
-  };
-  const locationFees = {
-    USA: 0.0,
-    Germany: 2.0,
-    Bangladesh: 1.0,
-    Singapore: 3.0,
-    Canada: 0.0,
-    Japan: 1.0,
-  };
-
-  const locationFee = locationFees[location];
-  const subtotal = basePrice + locationFee + domainPrices[extension];
-  const tax = subtotal * taxRate;
-  const beforeDiscount = subtotal + tax;
-  const discountAmount = beforeDiscount * discount;
-  const total = Number((beforeDiscount - discountAmount).toFixed(2));
-
-  const checkDomainAvailability = async () => {
-    setChecking(true);
-    setAvailability(null);
-    setTimeout(() => {
-      if (domain.length > 5) {
-        setAvailability('available');
-      } else {
-        setAvailability('taken');
-      }
-      setChecking(false);
-    }, 1000);
-  };
-
-  const applyCoupon = () => {
-    if (coupon.trim().toLowerCase() === 'get10') {
-      setDiscount(0.10);
-    } else {
-      setDiscount(0);
-    }
-  };
 
   const handleStripeCheckout = async () => {
     setLoading(true);
@@ -65,7 +18,7 @@ export default function HostingSignup() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          domain: \`\${domain}\${extension}\`,
+          domain: `${domain}${extension}`,
           location,
           total,
         }),
@@ -75,7 +28,7 @@ export default function HostingSignup() {
       console.log('Raw response:', raw);
 
       if (!res.ok) {
-        throw new Error(\`Server error: \${res.status} - \${raw}\`);
+        throw new Error(`Server error: ${res.status} - ${raw}`);
       }
 
       const data = JSON.parse(raw);
@@ -92,11 +45,49 @@ export default function HostingSignup() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 md:p-12 text-gray-900">
-      <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-xl">
-        <h1 className="text-3xl font-bold mb-6">Start Your 30-Day Free Hosting Trial</h1>
-        ...
-      </div>
+    <div className="p-6 max-w-md mx-auto bg-white rounded-xl shadow-md space-y-4">
+      <h1 className="text-2xl font-bold">Free Hosting Trial</h1>
+
+      <input
+        className="border px-3 py-2 w-full"
+        placeholder="yourdomain"
+        value={domain}
+        onChange={(e) => setDomain(e.target.value)}
+      />
+
+      <select
+        className="border px-3 py-2 w-full"
+        value={extension}
+        onChange={(e) => setExtension(e.target.value)}
+      >
+        <option value=".com">.com</option>
+        <option value=".org">.org</option>
+      </select>
+
+      <select
+        className="border px-3 py-2 w-full"
+        value={location}
+        onChange={(e) => setLocation(e.target.value)}
+      >
+        <option value="USA">USA</option>
+        <option value="Germany">Germany</option>
+        <option value="Bangladesh">Bangladesh</option>
+        <option value="Singapore">Singapore</option>
+        <option value="Canada">Canada</option>
+        <option value="Japan">Japan</option>
+      </select>
+
+      <button
+        onClick={handleStripeCheckout}
+        className="bg-black text-white px-4 py-2 rounded w-full"
+        disabled={loading}
+      >
+        {loading ? 'Processing...' : 'Start My 30-Day Trial'}
+      </button>
+
+      {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
     </div>
   );
 }
+
+export default HostingSignup;
