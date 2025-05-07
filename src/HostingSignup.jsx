@@ -93,6 +93,11 @@ export default function HostingSignup() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 md:p-12 text-gray-900">
+      {/* Top Development Banner */}
+      <div className="bg-red-600 text-white text-center py-2 mb-6 font-semibold">
+        🚧 This tool is in development phase. Please do not use it now.
+      </div>
+
       <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-xl">
         <h1 className="text-3xl font-bold mb-6">Start Your 30-Day Free Hosting Trial</h1>
 
